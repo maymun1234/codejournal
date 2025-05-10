@@ -1,0 +1,17 @@
+{
+    "appId": "com.codejournal.app",
+    "productName": "CodeJournal",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity"
+    },
+    "win": {
+      "target": "nsis"
+    }
+  }
+  
