@@ -2,11 +2,11 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './components/App';
+import HomePage from './pages/homePage';  // Ana sayfa bileşenini içeri aktarın
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
+    <React.StrictMode>
+        <HomePage />  {/* Ana sayfayı render et */}
+    </React.StrictMode>,
+    document.getElementById('root')
 );

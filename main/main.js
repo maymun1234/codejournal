@@ -3,27 +3,25 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 
-let mainWindow;
+let win;
 
 function createWindow() {
-  mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-    webPreferences: {
-      nodeIntegration: true
-    }
-  });
+    win = new BrowserWindow({
+        width: 800,
+        height: 600,
+        webPreferences: {
+            nodeIntegration: true,
+        },
+    });
 
-  mainWindow.loadURL('http://localhost:3000');  // React uygulaması için yerel sunucu URL'si
-  mainWindow.on('closed', () => {
-    mainWindow = null;
-  });
+    // React uygulamanızı başlatacak HTML dosyasını yükle
+    win.loadURL('http://localhost:3000');  // React app çalışıyorsa
+    // veya:
+    // win.loadFile(path.join(__dirname, '../renderer/index.html'));
 }
 
 app.whenReady().then(createWindow);
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+    if (process.platform !== 'darwin') app.quit();
 });
