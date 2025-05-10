@@ -1,27 +1,36 @@
-// main/main.js
-
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 
-let win;
+let mainWindow;
 
 function createWindow() {
-    win = new BrowserWindow({
+    mainWindow = new BrowserWindow({
         width: 800,
         height: 600,
         webPreferences: {
-            nodeIntegration: true,
-        },
+            nodeIntegration: false,
+            contextIsolation: true,
+            preload: path.join(__dirname, 'preload.js')  // Preload dosyası ekleyebilirsiniz.
+        }
     });
 
-    // React uygulamanızı başlatacak HTML dosyasını yükle
-    win.loadURL('http://localhost:3000');  // React app çalışıyorsa
-    // veya:
-    // win.loadFile(path.join(__dirname, '../renderer/index.html'));
+    // React geliştirme modunda ise, URL ile yükle
+    if (process.env.NODE_ENV === 'development') {
+        mainWindow.loadURL('http://localhost:3000');
+    } else {
+        // React build'ini yüklüyoruz
+        mainWindow.loadFile(path.join(__dirname, '../build/index.html'));
+    }
+
+    mainWindow.on('closed', () => {
+        mainWindow = null;
+    });
 }
 
-app.whenReady().then(createWindow);
+app.on('ready', createWindow);
 
 app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') app.quit();
+    if (process.platform !== 'darwin') {
+        app.quit();
+    }
 });
