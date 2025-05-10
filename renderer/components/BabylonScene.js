@@ -2,34 +2,40 @@ import React, { useEffect } from 'react';
 import * as BABYLON from '@babylonjs/core';
 
 const BabylonScene = () => {
-    useEffect(() => {
-        const canvas = document.getElementById('renderCanvas');
-        const engine = new BABYLON.Engine(canvas, true);
+  useEffect(() => {
+    // Canvas elementini al
+    const canvas = document.getElementById('renderCanvas');
+    const engine = new BABYLON.Engine(canvas, true);
 
-        const scene = new BABYLON.Scene(engine);
-        const camera = new BABYLON.ArcRotateCamera("camera1", Math.PI / 2, Math.PI / 2, 5, BABYLON.Vector3.Zero(), scene);
-        camera.attachControl(canvas, true);
+    const scene = new BABYLON.Scene(engine);
+    
+    // Kamera ekle
+    const camera = new BABYLON.ArcRotateCamera("camera1", Math.PI / 2, Math.PI / 2, 5, BABYLON.Vector3.Zero(), scene);
+    camera.attachControl(canvas, true);
 
-        const sphere = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter: 1}, scene);
-        sphere.position.y = 1;
+    // Bir ışık kaynağı ekle
+    const light = new BABYLON.HemisphericLight("light1", BABYLON.Vector3.Up(), scene);
 
-        const light = new BABYLON.HemisphericLight("light1", BABYLON.Vector3.Up(), scene);
+    // Bir küre ekle
+    const sphere = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter: 1}, scene);
+    sphere.position.y = 1;
 
-        engine.runRenderLoop(() => {
-            scene.render();
-        });
+    // Render döngüsü
+    engine.runRenderLoop(() => {
+      scene.render();
+    });
 
-        window.addEventListener('resize', () => {
-            engine.resize();
-        });
+    // Ekran boyutları değişirse yeniden boyutlandır
+    window.addEventListener('resize', () => {
+      engine.resize();
+    });
 
-        // Cleanup when the component unmounts
-        return () => {
-            engine.dispose();
-        };
-    }, []);
+    return () => {
+      engine.dispose(); // Temizlik yap
+    };
+  }, []);
 
-    return <canvas id="renderCanvas" style={{ width: '100%', height: '100%' }} />;
+  return <canvas id="renderCanvas" style={{ width: '100%', height: '100%' }} />;
 };
 
 export default BabylonScene;
