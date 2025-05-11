@@ -1,36 +1,34 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 
-let mainWindow;
+let win;
 
 function createWindow() {
-    mainWindow = new BrowserWindow({
-        width: 800,
-        height: 600,
-        webPreferences: {
-            nodeIntegration: false,
-            contextIsolation: true,
-            preload: path.join(__dirname, 'preload.js')  // Preload dosyası ekleyebilirsiniz.
-        }
-    });
+  win = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: {
+      nodeIntegration: true, // Babylon.js için gerekli, ancak dikkatli kullanın
+      contextIsolation: false, // Güvenlik için ileride kapatılabilir
+    },
+  });
 
-    // React geliştirme modunda ise, URL ile yükle
-    if (process.env.NODE_ENV === 'development') {
-        mainWindow.loadURL('http://localhost:3000');
-    } else {
-        // React build'ini yüklüyoruz
-        mainWindow.loadFile(path.join(__dirname, '../build/index.html'));
-    }
-
-    mainWindow.on('closed', () => {
-        mainWindow = null;
-    });
+  // Yerel index.html dosyasını yükle
+  win.loadFile(path.join(__dirname, '../build/index.html'));
+  // DevTools'u aç (hata ayıklama için)
+  win.webContents.openDevTools();
 }
 
-app.on('ready', createWindow);
+app.whenReady().then(createWindow);
 
 app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-        app.quit();
-    }
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow();
+  }
 });
