@@ -1,5 +1,6 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain } = require('electron');
 const path = require('path');
+const fileManager = require('../renderer/filereadwrite');
 
 let win;
 
@@ -8,16 +9,54 @@ function createWindow() {
     width: 800,
     height: 600,
     webPreferences: {
-      nodeIntegration: true, // Babylon.js için gerekli, ancak dikkatli kullanın
-      contextIsolation: false, // Güvenlik için ileride kapatılabilir
+      nodeIntegration: true,
+      contextIsolation: false,
     },
   });
 
-  // Yerel index.html dosyasını yükle
   win.loadFile(path.join(__dirname, '../build/index.html'));
-  // DevTools'u aç (hata ayıklama için)
-  win.webContents.openDevTools();
+
+  // 🔍 Doğru pencere referansı: win.webContents
+  win.webContents.openDevTools(); // ✅ Doğru şekilde DevTools'u aç
+
 }
+
+// Menü şablonu
+const menuTemplate = [
+  {
+    label: "File",
+    submenu: [
+      {
+        label: "New",
+        click: () => console.log("New File"),
+      },
+      {
+        label: "Open",
+        click: () => {
+          fileManager.openFile().then((content) => {
+            if (content) {
+              // 🎯 Renderer sürecine içerik gönderiliyor
+              win.webContents.send('load-obj', content);
+            }
+          });
+        },
+      },
+      {
+        label: "Save",
+        click: () => {
+          // 🎯 Renderer'dan OBJ verisi talep ediliyor
+          win.webContents.send('request-save-obj');
+        },
+      },
+      { type: "separator" },
+      { label: "Exit", role: "quit" },
+    ],
+  },
+];
+
+// Menü oluşturma
+const menu = Menu.buildFromTemplate(menuTemplate);
+Menu.setApplicationMenu(menu);
 
 app.whenReady().then(createWindow);
 
@@ -31,4 +70,9 @@ app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }
+});
+
+// 🎯 Renderer'dan gelen OBJ verisini yakala ve dosyaya kaydet
+ipcMain.on('save-obj-data', (event, content) => {
+  fileManager.saveFile(content);
 });
